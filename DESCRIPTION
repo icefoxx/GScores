@@ -1,0 +1,30 @@
+Package: GScores
+Type: Package
+Title: Calculate the gene set scores
+Version: 0.1.0
+Authors@R: 
+    person('Qiong', 'Zhang', email = 'transomics@gmail.com', role = c('aut', 'cre'))
+    person('Xiangyu', 'Zheng', email = 'xxxx', role = c('aut', 'cre'))
+Maintainer: QiongZhang <transomics@gmail.com>
+Description: Gene set scoring .
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Imports: 
+    AUCell (>= 1.20.2),
+    BiocManager (>= 1.30.22),
+    data.table (>= 1.14.10),
+    decoupleR (>= 2.4.0),
+    GSVA (>= 1.46.0),
+    magrittr,
+    Matrix (>= 1.6.3),
+    methods (>= 4.2.2),
+    pacman (>= 0.5.1),
+    purrr (>= 1.0.2),
+    readr (>= 2.1.4),
+    Seurat (>= 4.0.0),
+    singscore (>= 1.18.0),
+    stringr (>= 1.5.1),
+    UCell (>= 2.2.0),
+    utils (>= 4.2.2)
