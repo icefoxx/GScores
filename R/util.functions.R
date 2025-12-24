@@ -341,7 +341,7 @@ checkPara <- function(paralst, auto = T){
   print_message(stringr::str_glue('Checking parameters'))
   .slots <- c('data', 'counts')
   vldMethods(method.use = paralst$methods)
-  .methods <- c(Gsignatures = 'Gsignatures',
+  .methods <- c(Gsignatures = 'GSignatures',
                AUCell = 'AUCell',
                UCell = 'UCell',
                singscore = 'singscore',
