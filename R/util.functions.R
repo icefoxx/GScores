@@ -231,7 +231,7 @@ getExistGenes <- function(expm, geneSets, trim = T, ratio_warn = T, topoint = T)
 #'
 vldMethods <- function(method.use, install = T){
   print_message(stringr::str_glue('Checck availability for methods'))
-  .methods.avail <- c("Gsignatures","VAM", "VISION", "pagoda2",
+  .methods.avail <- c("GSignatures","VAM", "VISION", "pagoda2",
                    "AUCell", "UCell", "singscore", "ssgsea",
                    "JASMINE", "scSE", "wmean", "wsum",
                    "mdt", "viper", "gsva", "zscore",
