@@ -956,7 +956,7 @@ run_decoupleR <- function(object, genesets, assay = 'RNA', slot = 'counts', meth
 #'
 run_GSignatures <- function(object, genesets, assay = "RNA", slot = "counts"){
   print_message('Start GSignatures scoring')
-  object <- GSignatures(object, genesets, assay = assay)
+  object <- Gsignatures::GSignatures(object, genesets, assay = assay)
   print_message('VAM scoring completed')
   return(object)
 }
