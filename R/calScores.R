@@ -954,7 +954,7 @@ run_decoupleR <- function(object, genesets, assay = 'RNA', slot = 'counts', meth
 #' @return The input Seurat object with the GSignatures scores added as a new assay called "GSignatures".
 #' @export
 #'
-run_Gsignatures <- function(object, genesets, assay = "RNA", slot = "counts"){
+run_GSignatures <- function(object, genesets, assay = "RNA", slot = "counts"){
   print_message('Start GSignatures scoring')
   object <- GSignatures(object, genesets, assay = assay)
   print_message('VAM scoring completed')
