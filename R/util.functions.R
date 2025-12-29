@@ -229,70 +229,44 @@ getExistGenes <- function(expm, geneSets, trim = T, ratio_warn = T, topoint = T)
 #' @return GeneSets contain genes in the expression matrix
 #' @export
 #'
-vldMethods <- function(method.use, install = TRUE) {
-
-  print_message(stringr::str_glue('Checking availability for methods: {paste(method.use, collapse = ", ")}'))
-
-  .methods.avail <- c("GSignatures", "VAM", "VISION", "pagoda2",
-                      "AUCell", "UCell", "singscore", "ssgsea",
-                      "JASMINE", "scSE", "wmean", "wsum",
-                      "mdt", "viper", "gsva", "zscore",
-                      "plage", "AddModuleScore", "scGSEA")
-  
+vldMethods <- function(method.use, install = T){
+  print_message(stringr::str_glue('Checck availability for methods'))
+  .methods.avail <- c("GSignatures","VAM", "VISION", "pagoda2",
+                   "AUCell", "UCell", "singscore", "ssgsea",
+                   "JASMINE", "scSE", "wmean", "wsum",
+                   "mdt", "viper", "gsva", "zscore",
+                   "plage", "AddModuleScore", "scGSEA")
   .methods.pacs <- c("Gsignatures", "VAM", "VISION", "pagoda2+scde",
-                     "AUCell", "UCell", "singscore", "GSVA",
-                     "build.in", "build.in", "decoupleR", "decoupleR",
-                     "decoupleR", "decoupleR", "GSVA", "GSVA",
-                     "GSVA", "Seurat", "gficf+pointr+RcppML")
-  
+                     'AUCell', 'UCell', 'singscore', 'GSVA',
+                     'build.in', 'build.in', 'decoupleR', 'decoupleR',
+                     'decoupleR', 'decoupleR', 'GSVA', 'GSVA',
+                     'GSVA', 'Seurat', 'gficf+pointr+RcppML')
   .methods.source <- list(github = c(VISION = "YosefLab/VISION",
-                                    gficf = "gambalab/gficf",
-                                    Gsignatures = "icefoxx/Gsignatures"))
-
+                                     gficf = "gambalab/gficf",
+                                     Gsignatures = "icefoxx/Gsignatures/"
+                                     ))
   .method.diff.index <- match(method.use, .methods.avail)
-  if (any(is.na(.method.diff.index))) {
-    .missing_methods <- method.use[is.na(.method.diff.index)]
-    stop(stringr::str_glue('Methods: [{paste(.missing_methods, collapse = ", ")}] do NOT exist in our package.'))
-  }
-
-  .pac.need <- .methods.pacs[.method.diff.index]
-  .pac.need <- .pac.need[.pac.need != 'build.in'] 
-  
-  if (length(.pac.need) == 0) {
-    print_message("All methods are built-in or already checked.")
-    return(invisible(NULL))
-  }
-
-  .ps <- unlist(stringr::str_split(.pac.need, '\\+'))
-  .ps <- unique(.ps)
-
-  .package.lack <- .ps[!sapply(.ps, requireNamespace, quietly = TRUE)]
-
+  .method.diff <- method.use[is.na(.method.diff.index)]
+  if (length(.method.diff) > 0) stop(stringr::str_glue('{.method.diff} do NOT exist in our package'))
+  .pac.need.index <- .method.diff.index[!is.na(.method.diff.index)]
+  .pac.need <- .methods.pacs[.pac.need.index]
+  .package.lack <- .pac.need[ ! .pac.need == 'build.in']
+  .ps <- unlist(stringr::str_split(.package.lack, '\\+'))
+  .package.lack <- setdiff(.ps, rownames(utils::installed.packages()))
   if (length(.package.lack) > 0) {
-    if (isTRUE(install)) {
-      for (.p in .package.lack) {
-        print_message(stringr::str_glue('Missing package: {.p}. Automatic installation starts...'))
-        
-        BiocManager::install(.p, update = FALSE, ask = FALSE)
-        
-        if (!requireNamespace(.p, quietly = TRUE)) {
-          .gh_path <- .methods.source[['github']][.p]
-          if (!is.null(.gh_path)) {
-            print_message(stringr::str_glue('Trying GitHub installation for {.p} via {.gh_path}'))
-            pacman::p_install_gh(.gh_path)
-          }
+    if (isTRUE(install)){
+      for(i in seq_along(.package.lack)){
+        .p <- .package.lack[i]
+        print_message(stringr::str_glue('Missing packages {.p}. Automatical installation starts'))
+        pacman::p_install(.p, character.only = T)
+        if (!requireNamespace(.p, quietly = TRUE)) pacman::p_install_gh(.methods.source[['github']][.p])
+        if (!requireNamespace(.p, quietly = TRUE)) stop(stringr::str_glue('Installation {.p} failure,  should be manually installed by users'))
         }
-
-        if (!requireNamespace(.p, quietly = TRUE)) {
-          stop(stringr::str_glue('Installation of package "{.p}" failed. Please install it manually.'))
-        }
-      }
     } else {
-      .ps_lack_str <- paste0(.package.lack, collapse = ', ')
-      stop(stringr::str_glue('Missing packages: {.ps_lack_str}. Please install them manually or set install = TRUE.'))
+      .ps <- paste0(.package.lack, collapse = ',')
+      stop(stringr::str_glue('Missing package {.ps}, should be manually installed by users'))
     }
   }
-  
   print_message(stringr::str_glue('Methods checking completed'))
 }
 
