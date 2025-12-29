@@ -31,8 +31,7 @@ run_UCell <- function(object, genesets, assay = 'RNA', slot = 'counts', methods 
   .us <- UCell::ScoreSignatures_UCell(matrix = .expM,
                                       features = genesets,
                                       maxRank = MaxRank,
-                                      w_neg = 1,
-                                      ncores = ncores)
+                                      w_neg = 1)
   .us <- t(.us)
   rownames(.us) <- names(genesets)
   object[["UCell"]] <- SeuratObject::CreateAssayObject(counts = .us)
@@ -78,7 +77,7 @@ run_AUCell <- function(object, genesets, assay = 'RNA', slot = 'counts', methods
                                                  plotStats = F,
                                                  verbose = F,
                                                  splitByBlocks = TRUE)
-    .genesets4aucell <- genesets %>% purrr::discard(.p = function(x){all(stringr::str_detect(x, pattern = "\\+$|-$"))})
+    .genesets4aucell <- genesets |> purrr::discard(.p = function(x){all(stringr::str_detect(x, pattern = "\\+$|-$"))})
     .aucMaxRank <- ifelse (is.null(aucratio), ceiling(0.05 * .gene.n), ceiling(aucratio * .gene.n))
     .aucell.scores <- AUCell::AUCell_calcAUC(.genesets4aucell,
                                              .aucell.rank,
@@ -125,7 +124,19 @@ run_AUCell <- function(object, genesets, assay = 'RNA', slot = 'counts', methods
 run_GSXX <- function(object, genesets, assay = 'RNA', slot = 'data', methods = 'ssgsea', kcdf = 'Gaussian', ssgsea.norm = F){
   print_message(stringr::str_glue("start {methods} scoring"))
   .expMat <- assay2mtx(object, assay = assay, slot = slot)
-  .genesets4ss <- genesets %>% purrr::discard(.p = function(x){all(stringr::str_detect(x, pattern = "\\+$|-$"))})
+  .genesets4ss <- genesets |> purrr::discard(.p = function(x){all(stringr::str_detect(x, pattern = "\\+$|-$"))})
+  if (methods %in% c('plage')) {
+    .n <- ncol(.expMat)
+    .rmean <- Matrix::rowSums(.expMat) / .n
+    .rvar  <- Matrix::rowSums(.expMat^2) / n - .rmean ^ 2
+    .expMat   <- .expMat[.rvar > 0, , drop = FALSE]
+    .genesets2 <- lapply(.genesets4ss, function(gs) intersect(gs, rownames(.expMat)))
+    .genesets2 <- .genesets2[lengths(.genesets2) >= 2]
+    .genes_in_sets <- unique(unlist(.genesets2, use.names = FALSE))
+    .expMat <- as.matrix(.expMat[.genes_in_sets, , drop = FALSE])
+    storage.mode(.expMat) <- "double"
+    .genesets4ss <- .genesets2
+  }
   .ss.scores <- GSVA::gsva(.expMat,
                            .genesets4ss,
                            method = methods,
@@ -171,10 +182,10 @@ run_singscore <- function(object, genesets, assay = 'RNA', slot = 'counts', meth
       .geneset.pos <- NULL
       .geneset.neg <- NULL
       if (any(stringr::str_detect(.genes, pattern = "\\+$|-$"))) {
-        .geneset.pos <- stringr::str_match(.genes, pattern = "(.+)\\+$")[,2] %>% purrr::discard(is.na)
-        .geneset.neg <- stringr::str_match(.genes, pattern = "(.+)\\-$")[,2] %>% purrr::discard(is.na)
+        .geneset.pos <- stringr::str_match(.genes, pattern = "(.+)\\+$")[,2] |> purrr::discard(is.na)
+        .geneset.neg <- stringr::str_match(.genes, pattern = "(.+)\\-$")[,2] |> purrr::discard(is.na)
       } else {
-        .geneset.pos <- .genes %>% purrr::discard(is.na)
+        .geneset.pos <- .genes |> purrr::discard(is.na)
       }
       if (length(.geneset.neg) > 0){
         if (length(.geneset.pos) > 0){
@@ -194,7 +205,6 @@ run_singscore <- function(object, genesets, assay = 'RNA', slot = 'counts', meth
   }
   .ss.scores.all <- NULL
   .expMat <- assay2mtx(object, assay = assay, slot = slot)
-
   if (methods::is(.expMat, "error")) {
     .expMat.lst <- intervalCell(.expMat)
     .ss.scores.all <- do.call(rbind, lapply(.expMat.lst, .calSingscore, .expMat, genesets))
@@ -957,7 +967,7 @@ run_decoupleR <- function(object, genesets, assay = 'RNA', slot = 'counts', meth
 run_GSignatures <- function(object, genesets, assay = "RNA", slot = "counts"){
   print_message('Start GSignatures scoring')
   object <- Gsignatures::GSignatures(object, genesets, assay = assay)
-  print_message('VAM scoring completed')
+  print_message('GSignatures scoring completed')
   return(object)
 }
 
