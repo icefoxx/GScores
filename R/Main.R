@@ -28,7 +28,11 @@ GScores <- function(object, genesets, assay = "RNA", slot = "counts", methods = 
     out <- tryCatch(
       {
         print_message(stringr::str_glue('Run {methods} for gene set scoring'))
-        object <- funct(object, genesets = genesets, assay = assay, slot = slot, methods = methods)
+        if (methods %in% c('ssgsea', "gsva", "zscore", "plage")) {
+          object <- funct(object, genesets = genesets, assay = assay, slot = slot, methods = methods)
+        } else {
+          object <- funct(object, genesets = genesets, assay = assay, slot = slot)
+        }
         return(object)
       },
       error=function(cond) {
@@ -41,7 +45,6 @@ GScores <- function(object, genesets, assay = "RNA", slot = "counts", methods = 
       }
     )
   }
-#  methods = .out.m, callfun = .out.r, slots = .out.s
   for( i in seq_along(.para.run$methods)){
     .cal.method <- .para.run$methods[[i]]
     .cal.fun <- .para.run$callfun[[i]]
