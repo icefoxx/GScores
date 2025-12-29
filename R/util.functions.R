@@ -247,7 +247,7 @@ vldMethods <- function(method.use, install = TRUE) {
   
   .methods.source <- list(github = c(VISION = "YosefLab/VISION",
                                     gficf = "gambalab/gficf",
-                                    GSignatures = "icefoxx/Gsignatures"))
+                                    Gsignatures = "icefoxx/Gsignatures"))
 
   .method.diff.index <- match(method.use, .methods.avail)
   if (any(is.na(.method.diff.index))) {
