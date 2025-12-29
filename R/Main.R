@@ -21,6 +21,7 @@
 #'
 GScores <- function(object, genesets, assay = "RNA", slot = "counts", methods = c("GSignatures"), scale = F, return.type = 'obj') {
 
+  options(Seurat.object.assay.version = 'v3')
   .genesets <- getExistGenes(object, genesets)
   .paralst <- list(methods = methods, slot = slot, assya = assay)
   .para.run <- checkPara(.paralst)
